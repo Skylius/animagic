@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/resources/animagic.png" alt="Animagic" width="128" height="128" />
+  <img src="src/resources/icons/animagic.png" alt="Animagic" width="128" height="128" />
 </p>
 
 <h1 align="center">Animagic</h1>
