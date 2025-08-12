@@ -26,7 +26,7 @@ A Qt6 desktop app for assembling and disassembling GIF/WebP animations on Linux 
 - A C++17 compiler (g++/clang++)
 - Linux (primary target)
 
-On Debian/Ubuntu-like:
+On Debian/Ubuntu:
 ```bash
 sudo apt install -y cmake g++ qt6-base-dev libmagick++-dev
 ```
@@ -34,7 +34,7 @@ sudo apt install -y cmake g++ qt6-base-dev libmagick++-dev
 ## Build
 
 ```bash
-git clone <your-repo-or-extract-zip> animagic
+git clone https://github.com/Skylius/animagic
 cd animagic
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -85,5 +85,4 @@ CMakeLists.txt
 
 ## License
 
-MIT (placeholder).
-# animagic
+MIT.
