@@ -1,7 +1,7 @@
-#include "app/Application.h"
+#include "app/Application.hpp"
 #include "ui/Main/MainWindow.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv){
     Application app(argc, argv);
     MainWindow w;
     w.show();

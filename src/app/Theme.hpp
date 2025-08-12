@@ -1,2 +1,5 @@
 #pragma once
-#include "Theme.h"
+#include <QString>
+namespace Theme {
+    inline void apply(const QString&){ /* no-op minimal theme */ }
+}

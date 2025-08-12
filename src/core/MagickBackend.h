@@ -1,103 +1,73 @@
 #pragma once
 #include <QString>
 #include <QStringList>
-#include <QProcess>
-#include <functional>
 #include <optional>
-#include <vector>
-#include "core/MagickConfigFix.hpp"
+#include <functional>
 
-// Animagic - MagickBackend with CLI fallback (magick/convert/identify)
-
-struct AnimationProbe {
-    int width = 0;
-    int height = 0;
-    int frames = 0;
-    int loop = 0; // 0 = infinite
-    QString format; // "gif" or "webp" etc.
-    std::vector<int> perFrameDelayMs; // per frame in ms
-    std::vector<Magick::DisposeType> disposal;
+struct AnimationProbe{
+    int width=0;
+    int height=0;
+    int frames=0;
+    int loop=0; // 0=infinite
 };
 
-class MagickBackend {
+class MagickBackend{
 public:
-    enum class Mode { Auto, MagickPP, CLI };
-
-    explicit MagickBackend(Mode mode = Mode::Auto); // Initializes Magick++
-
-    // Analyze an animated image and return metadata.
+    enum class Mode { MagickPP };
+    explicit MagickBackend(Mode = Mode::MagickPP);
     AnimationProbe probeAnimation(const QString& path);
 
-    // Disassemble an animation into still frames.
     void extractFrames(const QString& path,
                        const QString& outFolder,
-                       const QString& pattern,
-                       const QString& stillFormat,
-                       bool coalesce,
+                       const QString& pattern = "frame_%05d.png",
+                       const QString& stillFormat = "PNG",
+                       bool coalesce=true,
                        std::function<void(int,int)> progress = {});
 
-    // Assemble frames into an animated GIF.
-    void assembleGif(const QStringList& frames,
-                     const QString& outPath,
-                     int loop,
-                     std::optional<int> delayMs,
-                     std::optional<double> fps,
-                     bool optimize,
-                     bool dither,
-                     int colors,
+    // Backward compatible signature
+    void extractFrames(const QString& path,
+                       const QString& outFolder,
+                       const QString& pattern = "frame_%05d.png",
+                       const QString& stillFormat = "PNG",
+                       bool coalesce=true);
+
+    void assembleGif(const QStringList& frames, const QString& outPath, int loop=0,
+                     std::optional<int> delayMs=std::nullopt,
+                     std::optional<double> fps=std::nullopt,
+                     bool optimize=true, bool dither=true, int colors=256,
                      std::function<void(int,int)> progress = {});
 
-    // Assemble frames into an animated WebP.
-    void assembleWebp(const QStringList& frames,
-                      const QString& outPath,
-                      int loop,
-                      std::optional<int> delayMs,
-                      std::optional<double> fps,
-                      bool lossless,
-                      int quality,
-                      int method,
-                      int nearLossless,
-                      int alphaQuality,
+    // Extended: with FPS and resize
+    void assembleGif(const QStringList& frames, const QString& outPath, int loop,
+                     std::optional<int> delayMs, std::optional<double> fps,
+                     bool optimize, bool dither, int colors,
+                     int width, int height,
+                     std::function<void(int,int)> progress = {});
+
+
+    // Backward compatible signature
+    void assembleGif(const QStringList& frames, const QString& outPath, int loop=0,
+                     std::optional<int> delayMs=std::nullopt,
+                     std::optional<double> fps=std::nullopt,
+                     bool optimize=true, bool dither=true, int colors=256);
+
+    void assembleWebp(const QStringList& frames, const QString& outPath, int loop=0,
+                      std::optional<int> delayMs=std::nullopt,
+                      std::optional<double> fps=std::nullopt,
+                      bool lossless=false, int quality=90, int method=4, int nearLossless=0, int alphaQuality=100,
                       std::function<void(int,int)> progress = {});
 
-private:
-    // helpers
-    static int msToCentiseconds(int ms);
-    static QString extLower(const QString& path);
-    static QStringList frameGlobsFrom(const QStringList& frames);
-    static QString quote(const QString& s);
+    // Extended: with FPS and resize
+    void assembleWebp(const QStringList& frames, const QString& outPath, int loop,
+                      std::optional<int> delayMs, std::optional<double> fps,
+                      bool lossless, int quality, int method, int nearLossless, int alphaQuality,
+                      int width, int height,
+                      std::function<void(int,int)> progress = {});
 
-    // CLI helpers
-    bool ensureCli();
-    int runCli(const QStringList& args, QString* stdoutStr = nullptr, QString* stderrStr = nullptr) const;
 
-    // Implementations
-    AnimationProbe probeAnimationPP(const QString& path);
-    AnimationProbe probeAnimationCLI(const QString& path);
-
-    void extractFramesPP(const QString& path, const QString& outFolder,
-                         const QString& pattern, const QString& stillFormat, bool coalesce,
-                         std::function<void(int,int)> progress);
-    void extractFramesCLI(const QString& path, const QString& outFolder,
-                          const QString& pattern, const QString& stillFormat, bool coalesce);
-
-    void assembleGifPP(const QStringList& frames, const QString& outPath, int loop,
-                       std::optional<int> delayMs, std::optional<double> fps,
-                       bool optimize, bool dither, int colors,
-                       std::function<void(int,int)> progress);
-    void assembleGifCLI(const QStringList& frames, const QString& outPath, int loop,
-                        std::optional<int> delayMs, std::optional<double> fps,
-                        bool optimize, bool dither, int colors);
-
-    void assembleWebpPP(const QStringList& frames, const QString& outPath, int loop,
-                        std::optional<int> delayMs, std::optional<double> fps,
-                        bool lossless, int quality, int method, int nearLossless, int alphaQuality,
-                        std::function<void(int,int)> progress);
-    void assembleWebpCLI(const QStringList& frames, const QString& outPath, int loop,
-                         std::optional<int> delayMs, std::optional<double> fps,
-                         bool lossless, int quality, int method, int nearLossless, int alphaQuality);
-
-private:
-    Mode mode_;
-    QString cliCmd_; // "magick" preferred, otherwise "convert"/"identify" handled via cliCmd_ switch.
+    // Backward compatible signature
+    void assembleWebp(const QStringList& frames, const QString& outPath, int loop=0,
+                      std::optional<int> delayMs=std::nullopt,
+                      std::optional<double> fps=std::nullopt,
+                      bool lossless=false, int quality=90, int method=4, int nearLossless=0, int alphaQuality=100);
 };

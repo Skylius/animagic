@@ -1,2 +1,6 @@
 #pragma once
-#include "Application.h"
+#include <QApplication>
+class Application : public QApplication {
+public:
+    Application(int& argc, char** argv);
+};

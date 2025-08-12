@@ -1,2 +1,5 @@
 #pragma once
-#include "Defaults.h"
+#include <QString>
+namespace Defaults {
+    inline QString theme(){ return "system"; }
+}

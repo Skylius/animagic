@@ -1,7 +1,6 @@
 #include "SpaceCheck.hpp"
 #include <QFileInfo>
 #include <QDir>
-#include <QtGlobal>
 #include <optional>
 #if __has_include(<filesystem>)
   #include <filesystem>
@@ -10,23 +9,26 @@
   #include <experimental/filesystem>
   namespace fs = std::experimental::filesystem;
 #endif
+
 namespace SpaceCheck {
-std::optional<quint64> bytesFree(const QString& path) {
-    try {
+std::optional<quint64> bytesFree(const QString& path){
+    try{
         fs::path p = fs::path(path.toStdString());
-        if (!fs::exists(p)) {
-            p = fs::path(QFileInfo(path).absolutePath().toStdString());
+        if(!fs::exists(p)){
+            QFileInfo fi(path);
+            if(fi.isFile()) p = fs::path(fi.absolutePath().toStdString());
+            else p = fs::path(QDir(path).absolutePath().toStdString());
         }
         auto sp = fs::space(p);
         return static_cast<quint64>(sp.available);
-    } catch (...) {
+    }catch(...){
         return std::nullopt;
     }
 }
-bool hasAtLeast(const QString& path, quint64 requireBytes, quint64* availableOut) {
+bool hasAtLeast(const QString& path, quint64 requireBytes, quint64* availableOut){
     auto free = bytesFree(path);
     quint64 avail = free.value_or(0);
-    if (availableOut) *availableOut = avail;
+    if(availableOut) *availableOut = avail;
     return free.has_value() && avail >= requireBytes;
 }
-} // namespace SpaceCheck
+}
