@@ -44,8 +44,6 @@ AssemblePage::AssemblePage(QWidget* parent): QWidget(parent){
     auto *row3 = new QHBoxLayout; row3->addWidget(useDelay_); row3->addWidget(new QLabel(tr("Delay (ms):"))); row3->addWidget(delayMs_); row3->addSpacing(16); row3->addWidget(useLoop_); row3->addWidget(new QLabel(tr("Loop:"))); row3->addWidget(loopCount_); row3->addStretch();
     auto *row0 = new QHBoxLayout; row0->addWidget(new QLabel(tr("Format:"))); row0->addWidget(gifRadio_); row0->addWidget(webpRadio_); row0->addStretch();
     auto *row5 = new QHBoxLayout; row5->addWidget(new QLabel(tr("FPS (0=use delay):"))); row5->addWidget(fps_); row5->addSpacing(16);
-                        row5->addWidget(new QLabel(tr("Delay (ms):"))); row5->addWidget(delayMs_); row5->addSpacing(16);
-                        row5->addWidget(new QLabel(tr("Loop:"))); row5->addWidget(loopCount_);
     gifGroup_ = new QGroupBox(tr("GIF")); auto *gifLay = new QHBoxLayout; gifLay->addWidget(optimize_); gifLay->addWidget(dither_); gifLay->addWidget(new QLabel(tr("Colors:"))); gifLay->addWidget(colors_); gifLay->addStretch(); gifGroup_->setLayout(gifLay);
     webpGroup_ = new QGroupBox(tr("WebP")); auto *webpLay = new QHBoxLayout; webpLay->addWidget(lossless_); webpLay->addWidget(new QLabel(tr("Quality:"))); webpLay->addWidget(quality_); webpLay->addWidget(new QLabel(tr("Method:"))); webpLay->addWidget(method_); webpLay->addStretch(); webpGroup_->setLayout(webpLay);
     auto *row8 = new QHBoxLayout; row8->addWidget(new QLabel(tr("Resize W×H (0=keep):"))); row8->addWidget(width_); row8->addWidget(height_); row8->addStretch();
