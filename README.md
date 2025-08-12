@@ -1,88 +1,123 @@
-# Animagic
+<p align="center">
+  <img src="src/resources/animagic.png" alt="Animagic" width="128" height="128" />
+</p>
 
-A Qt6 desktop app for assembling and disassembling GIF/WebP animations on Linux using ImageMagick.
+<h1 align="center">Animagic</h1>
 
-## Features
+<p align="center">
+  A Qt6 desktop app that disassembles GIF/WebP animations into frames and reassembles them back with fine‑grained controls — powered by ImageMagick.
+</p>
 
-- **Disassemble** GIF/WebP → still images (PNG/JPEG/BMP/WebP, etc.)
-- **Assemble** still images → GIF or WebP with:
-  - Loop count, per-frame delay or FPS
-  - GIF: palette colors, optimize, dither
-  - WebP: quality, method, near-lossless, alpha quality, lossless
-- **Per-frame editor**: reorder, duplicate, delete, and edit timings
-- **Preview**: play with loop/delay/FPS
-- **Profiles**: preset encode settings (e.g., “Discord GIF”, “Low-size WebP”)
-- **Metadata**: save and reload `animagic.meta.json` with source + assembly options
-- **Background tasks**: cancellable, with unified progress + log and a global task bar
-- **Settings**: default folders, backend mode (Magick++/CLI), theme (system/light/dark)
-- **Platform helpers**: paths (XDG) and free-space checks
-- **Embedded app icon**: `animagic.png` via Qt resource
+---
 
-## Dependencies
+## ✨ Features
 
-- **Qt 6** (Widgets, Gui, Core)
-- **ImageMagick 7** with C++ headers (`Magick++`)
-- CMake ≥ 3.16
-- A C++17 compiler (g++/clang++)
-- Linux (primary target)
+- **Disassemble** animated **GIF/WebP** into common still formats (PNG/JPG/BMP), with optional coalescing.
+- **Assemble** animations from a folder of frames:
+  - **Format**: GIF or WebP
+  - **Timing**: FPS (overrides delay) or Delay (ms), optional loop count
+  - **GIF options**: Optimize, Dither, Palette Colors (2–256)
+  - **WebP options**: Lossless toggle, Quality (0–100), Method (0–6)
+  - **Resize**: Width × Height (0 = keep original)
+- **Non‑blocking UI**: heavy work runs off the UI thread (QThread) with a TaskBar that shows status & progress.
+- **Polished UX**:
+  - Format selection (GIF/WebP) at the top
+  - Relevant controls auto‑enable; irrelevant ones are greyed out
+  - Live “effective timing” readout based on FPS/Delay
+- **Native integration** (Linux):
+  - Desktop file + icon install
+  - Wayland/Hyprland friendly (desktop app id set to `animagic`)
 
-On Debian/Ubuntu:
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/assemble.png" alt="Animagic – Assemble tab" width="720" />
+</p>
+
+---
+
+## 🧰 Dependencies
+
+**Runtime**
+- Qt 6 (Widgets) — `qt6-base`
+- ImageMagick 7 with C++ bindings — `imagemagick` / `Magick++`
+
+**Build**
+- CMake ≥ 3.18
+- C++17 compiler (GCC/Clang)
+- pkg-config
+
+### Package names (quick reference)
+
+- **Arch Linux**: `qt6-base`, `imagemagick`, `cmake`, `pkgconf`, `base-devel`
+- **Debian/Ubuntu**: `qt6-base-dev`, `libmagick++-dev`, `cmake`, `pkg-config`, `build-essential`
+- **Fedora**: `qt6-qtbase-devel`, `ImageMagick-c++-devel`, `cmake`, `gcc-c++`, `pkgconf-pkg-config`
+
+---
+
+## 🛠️ Build from source
+
 ```bash
-sudo apt install -y cmake g++ qt6-base-dev libmagick++-dev
-```
-
-## Build
-
-```bash
-git clone https://github.com/Skylius/animagic
+git clone https://github.com/Skylius/animagic.git
 cd animagic
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . -j
 ./animagic
 ```
 
-If Qt or ImageMagick are installed in non-standard paths, pass hints to CMake, e.g.:
+> **Windows:** Install Qt 6 and ImageMagick with C++ headers/libraries (Magick++). Ensure their `bin/` directories are on PATH at runtime.
+
+---
+
+## 📦 Install (Linux)
 
 ```bash
-cmake -DCMAKE_PREFIX_PATH=/opt/Qt/6.6.0/gcc_64 ..
+# from build/
+sudo cmake --install .
 ```
 
-## CLI Fallback
+Installs:
+- `/usr/bin/animagic`
+- `/usr/share/applications/animagic.desktop`
+- `/usr/share/icons/hicolor/256x256/apps/animagic.png`
 
-If Magick++ isn’t available at runtime, the backend falls back to invoking the `magick` (or legacy `convert`) CLI. You can force a mode from **Settings → Backend**.
-
-## Project Layout
-
-```
-src/
-  app/            # Application bootstrap + theme
-  config/         # Defaults + AppSettings (JSON in ~/.config/animagic/settings.json)
-  core/           # MagickBackend, Profiles, FrameOps, Timing, Task/TaskRunner, Cancellation
-  platform/       # Paths (XDG-aware), SpaceCheck
-  ui/
-    Common/       # ProgressLogPane, FilePickers, CenteredListView, TaskBar
-    Main/         # MainWindow (tabs + global task bar + theme toggle)
-    ProjectBrowser/
-    DisassemblePage/
-    AssemblePage/
-    MetadataPage/
-    SettingsPage/
-  resources/      # resources.qrc + icons/animagic.png
-CMakeLists.txt
+**Wayland/Hyprland:** if the icon doesn’t refresh immediately, update caches:
+```bash
+sudo gtk-update-icon-cache -f /usr/share/icons/hicolor || true
+sudo update-desktop-database /usr/share/applications || true
 ```
 
-## Notes
+---
 
-- The preview runs on a timer using current per-frame delays; it is not a final fidelity encode preview.
-- Free-space checks log a warning if low (won’t block you).
+## 🧪 Usage
 
-## Troubleshooting
+1. **Disassemble**
+   - Disassemble tab → choose input (`.gif`/`.webp`) and output folder → **Disassemble**.
 
-- **Qt not found**: ensure `qt6-base-dev` (or your distro’s equivalent) is installed; set `CMAKE_PREFIX_PATH` if needed.
-- **ImageMagick headers**: install `libmagick++-dev`. For CLI-only, you still need the runtime `imagemagick` package.
-- **Wayland vs X11**: if you see rendering issues, try `QT_QPA_PLATFORM=xcb ./animagic`.
+2. **Assemble**
+   - Assemble tab → choose **Format** (GIF/WebP), **Frames dir**, **Output file**.
+   - Timing via **FPS** (overrides) or **Use Delay (ms)**; optional **Use Loop**.
+   - Tweak format‑specific options; **Assemble** from the taskbar.
 
-## License
+---
 
-MIT.
+## 🔧 Troubleshooting
+
+- **ImageMagick link errors** (`DestroyExceptionInfo`, etc.): ensure **Magick++** dev package is installed and visible to CMake.
+- **Icon not appearing on Wayland docks/launchers**: install the app (so `.desktop` + icon are on disk) and refresh caches.
+
+---
+
+## 🗺️ Scope
+
+- Focused utility for **GIF/WebP** assembly and disassembly.
+- Not a frame editor/timeline tool.
+
+---
+
+## 🏷️ License
+
+See `LICENSE`.
